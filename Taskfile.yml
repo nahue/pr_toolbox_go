@@ -1,0 +1,37 @@
+version: '3'
+
+tasks:
+  run:
+    desc: Run the application
+    deps: [templ]
+    cmds:
+      - go run .
+
+  build:
+    desc: Build the application
+    cmds:
+      - go build -o pr-toolbox-go .
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test ./...
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -f pr-toolbox-go
+
+  deps:
+    desc: Install dependencies
+    cmds:
+      - go mod tidy
+
+  templ:
+    desc: Generate templ files
+    cmds:
+      - templ generate
+
+  dev:
+    desc: Run with templ generation
+    deps: [templ, run]

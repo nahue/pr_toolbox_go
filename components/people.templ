@@ -1,0 +1,70 @@
+package components
+
+import "fmt"
+
+type Person struct {
+	ID         int
+	Name       string
+	Email      string
+	Age        int
+	Department string
+	Position   string
+}
+
+type PeopleData struct {
+	People []Person
+	Stats  Stats
+}
+
+type Stats struct {
+	TotalPeople      int
+	AverageAge       int
+	TotalDepartments int
+}
+
+templ PeopleTable(data PeopleData) {
+	<div id="people-data">
+		<!-- Stats Section -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+			<div class="bg-gray-50 p-5 rounded-lg text-center">
+				<div class="text-3xl font-bold text-primary-500" id="total-people">{ fmt.Sprint(data.Stats.TotalPeople) }</div>
+				<div class="text-gray-600 text-sm mt-1">Total People</div>
+			</div>
+			<div class="bg-gray-50 p-5 rounded-lg text-center">
+				<div class="text-3xl font-bold text-primary-500" id="avg-age">{ fmt.Sprint(data.Stats.AverageAge) }</div>
+				<div class="text-gray-600 text-sm mt-1">Average Age</div>
+			</div>
+			<div class="bg-gray-50 p-5 rounded-lg text-center">
+				<div class="text-3xl font-bold text-primary-500" id="total-depts">{ fmt.Sprint(data.Stats.TotalDepartments) }</div>
+				<div class="text-gray-600 text-sm mt-1">Departments</div>
+			</div>
+		</div>
+		<!-- People Table -->
+		<div class="overflow-x-auto rounded-lg shadow-lg">
+			<table class="w-full border-collapse bg-white">
+				<thead>
+					<tr>
+						<th class="p-4 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-700">ID</th>
+						<th class="p-4 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-700">Name</th>
+						<th class="p-4 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-700">Email</th>
+						<th class="p-4 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-700">Age</th>
+						<th class="p-4 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-700">Department</th>
+						<th class="p-4 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-700">Position</th>
+					</tr>
+				</thead>
+				<tbody id="people-tbody">
+					for _, person := range data.People {
+						<tr class="hover:bg-gray-50">
+							<td class="p-4 text-left border-b border-gray-200">{ fmt.Sprint(person.ID) }</td>
+							<td class="p-4 text-left border-b border-gray-200">{ person.Name }</td>
+							<td class="p-4 text-left border-b border-gray-200">{ person.Email }</td>
+							<td class="p-4 text-left border-b border-gray-200">{ fmt.Sprint(person.Age) }</td>
+							<td class="p-4 text-left border-b border-gray-200">{ person.Department }</td>
+							<td class="p-4 text-left border-b border-gray-200">{ person.Position }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}

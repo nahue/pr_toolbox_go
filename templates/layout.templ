@@ -1,0 +1,40 @@
+package templates
+
+type PageData struct {
+	Title       string
+	Description string
+	Content     templ.Component
+}
+
+templ BaseLayout(data PageData) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ data.Title }</title>
+			<script defer src="https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.12.4/dist/cdn.min.js"></script>
+			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+			<script src="https://cdn.tailwindcss.com"></script>
+			<script>
+				tailwind.config = {
+					theme: {
+						extend: {
+							colors: {
+								primary: {
+									50: '#eff6ff',
+									500: '#667eea',
+									600: '#5a6fd8',
+									700: '#4c63d2'
+								}
+							}
+						}
+					}
+				}
+			</script>
+		</head>
+		<body class="font-sans m-0 p-5 bg-gradient-to-br from-primary-500 to-purple-600 min-h-screen">
+			@data.Content
+		</body>
+	</html>
+}
