@@ -1,3 +1,7 @@
 pr-toolbox-go
 .env
 tmp
+data/
+*.db
+*.sqlite
+*.sqlite3

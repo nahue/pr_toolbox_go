@@ -1,4 +1,4 @@
-package main
+package openai
 
 import (
 	"context"
@@ -6,26 +6,25 @@ import (
 	"log"
 	"os"
 
+	"github.com/nahue/pr-toolbox-go/internal/github"
 	"github.com/sashabaranov/go-openai"
 )
 
-type OpenAIService struct {
+type Service struct {
 	client *openai.Client
 }
 
-// PRData is already defined in github_service.go
-
-func NewOpenAIService() (*OpenAIService, error) {
+func NewService() (*Service, error) {
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
 		return nil, fmt.Errorf("OpenAI API key not configured")
 	}
 
 	client := openai.NewClient(apiKey)
-	return &OpenAIService{client: client}, nil
+	return &Service{client: client}, nil
 }
 
-func (s *OpenAIService) GeneratePRDescription(prData *PRData) (string, error) {
+func (s *Service) GeneratePRDescription(prData *github.PRData) (string, error) {
 	// Create detailed prompt with GitHub data
 	prompt := fmt.Sprintf(`You are a helpful assistant that generates professional GitHub pull request descriptions.
 
@@ -66,9 +65,9 @@ Make the description clear, professional, and helpful for code reviewers. Focus 
 		prData.Additions,
 		prData.Deletions,
 		len(prData.ChangedFiles),
-		getLabelsString(prData.Labels),
-		getUserString(prData.User),
-		getAssigneesString(prData.Assignees),
+		github.GetLabelsString(prData.Labels),
+		github.GetUserString(prData.User),
+		github.GetAssigneesString(prData.Assignees),
 	)
 
 	// Make OpenAI API call
@@ -103,5 +102,3 @@ Make the description clear, professional, and helpful for code reviewers. Focus 
 	// Extract the generated description
 	return resp.Choices[0].Message.Content, nil
 }
-
-// Helper functions are already defined in main.go

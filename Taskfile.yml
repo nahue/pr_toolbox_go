@@ -35,3 +35,24 @@ tasks:
     desc: Run with Air for hot reloading
     cmds:
       - air
+
+  db:migrate:
+    desc: Run database migrations
+    cmds:
+      - goose sqlite3 ./data/pr_toolbox.db -dir ./migrations up
+
+  db:rollback:
+    desc: Rollback last migration
+    cmds:
+      - goose sqlite3 ./data/pr_toolbox.db -dir ./migrations down
+
+  db:status:
+    desc: Show migration status
+    cmds:
+      - goose sqlite3 ./data/pr_toolbox.db -dir ./migrations status
+
+  db:reset:
+    desc: Reset database (drop all tables and re-run migrations)
+    cmds:
+      - rm -f ./data/pr_toolbox.db
+      - goose sqlite3 ./data/pr_toolbox.db -dir ./migrations up

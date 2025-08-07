@@ -1,4 +1,4 @@
-package main
+package github
 
 import (
 	"context"
@@ -11,6 +11,10 @@ import (
 
 	"github.com/google/go-github/v62/github"
 )
+
+type Service struct {
+	client *github.Client
+}
 
 type PRData struct {
 	Title        string                `json:"title"`
@@ -29,7 +33,20 @@ type PRData struct {
 	Contributors []*github.Contributor `json:"contributors"`
 }
 
-func fetchGitHubPRData(owner, repo string, prNumber int) (*PRData, error) {
+func NewService() *Service {
+	githubToken := os.Getenv("GITHUB_TOKEN")
+
+	var client *github.Client
+	if githubToken != "" {
+		client = github.NewClient(nil).WithAuthToken(githubToken)
+	} else {
+		client = github.NewClient(nil)
+	}
+
+	return &Service{client: client}
+}
+
+func (s *Service) FetchPRData(owner, repo string, prNumber int) (*PRData, error) {
 	githubToken := os.Getenv("GITHUB_TOKEN")
 
 	if githubToken == "" {
@@ -38,26 +55,23 @@ func fetchGitHubPRData(owner, repo string, prNumber int) (*PRData, error) {
 		return getMockPRData(owner, repo, prNumber), nil
 	}
 
-	// Create GitHub client
-	client := github.NewClient(nil).WithAuthToken(githubToken)
-
 	ctx := context.Background()
 
 	// Fetch PR data
-	pr, _, err := client.PullRequests.Get(ctx, owner, repo, prNumber)
+	pr, _, err := s.client.PullRequests.Get(ctx, owner, repo, prNumber)
 	if err != nil {
 		log.Printf("Error fetching PR data: %v", err)
 		return getMockPRData(owner, repo, prNumber), nil
 	}
 
 	// Fetch additional data
-	labels, _, err := client.Issues.ListLabelsByIssue(ctx, owner, repo, prNumber, nil)
+	labels, _, err := s.client.Issues.ListLabelsByIssue(ctx, owner, repo, prNumber, nil)
 	if err != nil {
 		log.Printf("Error fetching labels: %v", err)
 		labels = []*github.Label{}
 	}
 
-	files, _, err := client.PullRequests.ListFiles(ctx, owner, repo, prNumber, nil)
+	files, _, err := s.client.PullRequests.ListFiles(ctx, owner, repo, prNumber, nil)
 	if err != nil {
 		log.Printf("Error fetching files: %v", err)
 		files = []*github.CommitFile{}
@@ -143,8 +157,8 @@ func getMockPRData(owner, repo string, prNumber int) *PRData {
 	}
 }
 
-// parseGitHubURL extracts owner, repo, and PR number from a GitHub PR URL
-func parseGitHubURL(url string) (string, string, int, error) {
+// ParseGitHubURL extracts owner, repo, and PR number from a GitHub PR URL
+func (s *Service) ParseGitHubURL(url string) (string, string, int, error) {
 	// Expected format: https://github.com/owner/repo/pull/123
 	parts := strings.Split(url, "/")
 	if len(parts) < 7 || parts[2] != "github.com" || parts[5] != "pull" {
@@ -165,4 +179,40 @@ func parseGitHubURL(url string) (string, string, int, error) {
 	}
 
 	return owner, repo, prNumber, nil
+}
+
+// Helper functions for formatting GitHub data
+func GetLabelsString(labels []*github.Label) string {
+	if len(labels) == 0 {
+		return "none"
+	}
+
+	var labelNames []string
+	for _, label := range labels {
+		if label.Name != nil {
+			labelNames = append(labelNames, *label.Name)
+		}
+	}
+	return strings.Join(labelNames, ", ")
+}
+
+func GetUserString(user *github.User) string {
+	if user == nil || user.Login == nil {
+		return "unknown"
+	}
+	return *user.Login
+}
+
+func GetAssigneesString(assignees []*github.User) string {
+	if len(assignees) == 0 {
+		return "none"
+	}
+
+	var assigneeNames []string
+	for _, assignee := range assignees {
+		if assignee.Login != nil {
+			assigneeNames = append(assigneeNames, *assignee.Login)
+		}
+	}
+	return strings.Join(assigneeNames, ", ")
 }
