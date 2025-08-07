@@ -1,15 +1,13 @@
 version: '3'
 
 tasks:
-  run:
-    desc: Run the application
-    deps: [templ]
+  default:
+    desc: Default task
     cmds:
-      - go run .
+      - task: dev
 
   build:
     desc: Build the application
-    deps: [templ]
     cmds:
       - go build -o pr-toolbox-go .
 
@@ -34,5 +32,6 @@ tasks:
       - templ generate
 
   dev:
-    desc: Run with templ generation
-    deps: [templ, run]
+    desc: Run with Air for hot reloading
+    cmds:
+      - air

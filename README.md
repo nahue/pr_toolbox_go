@@ -157,6 +157,12 @@ go mod tidy
    make dev
    ```
 
+   **Option D: Hot reload development with Air**
+   ```bash
+   make air
+   ```
+   This will automatically reload the application when you modify any Go or templ files.
+
 5. Open your browser and navigate to:
 ```
 http://localhost:8080
