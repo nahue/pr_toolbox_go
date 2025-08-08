@@ -222,6 +222,18 @@ func (app *Application) authMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		// If authentication is disabled, create a mock user for development
+		if !app.useAuth {
+			mockUser := &AuthUser{
+				ID:       "dev-user",
+				Email:    "dev@example.com",
+				IsActive: true,
+			}
+			ctx := context.WithValue(r.Context(), userContextKey, mockUser)
+			next.ServeHTTP(w, r.WithContext(ctx))
+			return
+		}
+
 		// Get current user
 		user := app.getCurrentUser(r)
 		if user == nil {
@@ -243,6 +255,15 @@ func (app *Application) authMiddleware(next http.Handler) http.Handler {
 
 // Helper functions
 func (app *Application) getCurrentUser(r *http.Request) *AuthUser {
+	// If authentication is disabled, return a mock user
+	if !app.useAuth {
+		return &AuthUser{
+			ID:       "dev-user",
+			Email:    "dev@example.com",
+			IsActive: true,
+		}
+	}
+
 	// Get session token from cookie
 	cookie, err := r.Cookie("session_token")
 	if err != nil {

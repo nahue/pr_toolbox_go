@@ -33,6 +33,8 @@ tasks:
 
   dev:
     desc: Run with Air for hot reloading
+    env:
+      USE_AUTH: false
     cmds:
       - air
 

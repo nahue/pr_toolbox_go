@@ -88,6 +88,12 @@ func (app *Application) handleMagicLinkVerification(w http.ResponseWriter, r *ht
 
 // handleLogout handles POST /auth/logout
 func (app *Application) handleLogout(w http.ResponseWriter, r *http.Request) {
+	// If authentication is disabled, redirect to main page
+	if !app.useAuth {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
 	// Get session token from cookie
 	cookie, err := r.Cookie("session_token")
 	if err == nil {
@@ -113,6 +119,12 @@ func (app *Application) handleLogout(w http.ResponseWriter, r *http.Request) {
 
 // handleLogin handles GET /auth/login
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
+	// If authentication is disabled, redirect to main page
+	if !app.useAuth {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
 	// Check if already authenticated
 	if user := app.getCurrentUser(r); user != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)

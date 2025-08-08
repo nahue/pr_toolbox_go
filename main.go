@@ -36,5 +36,5 @@ func main() {
 	application := app.NewApplication(db, openaiService, githubService)
 
 	// Start server
-	log.Fatal(application.Start("8080"))
+	log.Fatal(application.Start("9090"))
 }

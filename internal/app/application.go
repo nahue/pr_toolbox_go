@@ -3,6 +3,8 @@ package app
 import (
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -18,6 +20,7 @@ type Application struct {
 	openaiService *openai.Service
 	githubService *githubsvc.Service
 	router        *chi.Mux
+	useAuth       bool
 }
 
 type GeneratePRDescriptionRequest struct {
@@ -26,11 +29,26 @@ type GeneratePRDescriptionRequest struct {
 
 // NewApplication creates a new application instance with all dependencies
 func NewApplication(db *database.Database, openaiService *openai.Service, githubService *githubsvc.Service) *Application {
+	// Check if authentication is enabled via environment variable
+	useAuth := true // default to true for security
+	if useAuthStr := os.Getenv("USE_AUTH"); useAuthStr != "" {
+		if parsed, err := strconv.ParseBool(useAuthStr); err == nil {
+			useAuth = parsed
+		} else {
+			log.Printf("Warning: Invalid USE_AUTH value '%s', defaulting to true", useAuthStr)
+		}
+	}
+
+	if !useAuth {
+		log.Println("Warning: Authentication is DISABLED. This should only be used for development.")
+	}
+
 	app := &Application{
 		db:            db,
 		openaiService: openaiService,
 		githubService: githubService,
 		router:        chi.NewRouter(),
+		useAuth:       useAuth,
 	}
 
 	app.setupMiddleware()
